@@ -90,3 +90,17 @@ except FileNotFoundError:
 except Exception as e:
     print(f"An error occurred while loading the dataset: {e}")
     exit(1)
+
+# ResNet18 Model Setup
+model = models.resnet18(weights=models.ResNet18_Weights.IMAGENET1K_V1)
+# Freeze pretrained layers
+for param in model.parameters():
+    param.requires_grad = False
+# Modify final layer for our number of classes
+model.fc = nn.Linear(model.fc.in_features, NUM_CLASSES)
+# Device configuration
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+print(f"Using device: {device}")
+model = model.to(device)
+print("ResNet18 model initialized and setup.")
+print(f"Model's final layer: {model.fc}")

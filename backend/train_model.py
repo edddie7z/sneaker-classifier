@@ -16,8 +16,9 @@ DATA_PATH = 'data/'
 MODEL_PATH = 'sneaker_classifier.pth'
 NUM_CLASSES = 50
 BATCH_SIZE = 32
-NUM_EPOCHS = 25
-LEARNING_RATE = 0.001
+NUM_EPOCHS = 10
+LEARNING_RATE = 1e-4
+WEIGHT_DECAY = 1e-4
 
 
 # Setting up data loading and transformations
@@ -30,8 +31,9 @@ def data_setup(data_path, batch_size):
             # Augmentation
             transforms.RandomResizedCrop(224),
             transforms.RandomHorizontalFlip(),
-            # transforms.RandomRotation(10),
-            # transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.1),
+            transforms.RandomRotation(10),
+            transforms.ColorJitter(
+                brightness=0.1, contrast=0.1, saturation=0.1, hue=0.05),
             transforms.ToTensor(),
             # Normalization values based from ImageNet dataset
             transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[
@@ -106,10 +108,12 @@ def data_setup(data_path, batch_size):
 
 # ResNet18 Model Setup
 def model_setup(NUM_CLASSES, LEARNING_RATE):
-    model = models.resnet18(weights=models.ResNet18_Weights.IMAGENET1K_V1)
+    model = models.resnet18(pretrained=True)
+
     # Freeze pretrained layers
-    for param in model.parameters():
-        param.requires_grad = False
+    # for param in model.parameters():
+    #     param.requires_grad = False
+
     # Modify final layer for our number of classes
     model.fc = nn.Linear(model.fc.in_features, NUM_CLASSES)
     # Device configuration
@@ -120,7 +124,9 @@ def model_setup(NUM_CLASSES, LEARNING_RATE):
     print(f"Model's final layer: {model.fc}")
 
     # Optimizer and Loss Function set up
-    optimizer = optim.Adam(model.fc.parameters(), lr=LEARNING_RATE)
+    # optimizer = optim.Adam(model.fc.parameters(), lr=LEARNING_RATE)
+    optimizer = optim.Adam(
+        model.parameters(), lr=LEARNING_RATE, weight_decay=WEIGHT_DECAY)
     criterion = nn.CrossEntropyLoss()
     return model, criterion, optimizer, device
 

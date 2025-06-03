@@ -4,7 +4,6 @@ import torch.optim as optim
 from torchvision import datasets, models, transforms
 from torch.utils.data import DataLoader, random_split
 import os
-import time
 import numpy as np
 
 # Configurations - Parameters
@@ -113,7 +112,6 @@ criterion = nn.CrossEntropyLoss()
 # Training function
 def train_model(model, criterion, optimizer, dataloaders, device, num_epochs, model_path):
     print("Starting training...")
-    start = time.time()
     best_weights = model.state_dict()
     best_acc = 0.0
 
@@ -166,11 +164,25 @@ def train_model(model, criterion, optimizer, dataloaders, device, num_epochs, mo
                 epoch_loss = float('nan')
                 epoch_acc = float('nan')
 
+            # Copy best model
+            if mode == 'test' and epoch_acc > best_acc:
+                best_acc = epoch_acc
+                best_weights = model.state_dict().copy()
+                print(f'New best test accuracy: {best_acc:.4f}')
+
+    # Save best model & weights
+    model.load_state_dict(best_weights)
+    torch.save(model.state_dict(), model_path)
+    print(f'Best model saved to {model_path}')
+    return model
+
 
 # Main
 if __name__ == "__main__":
     if 'dataloaders' in locals() and 'model' in locals() and 'optimizer' in locals() and 'criterion' in locals():
-        print("Setup complete. Training model...")
+        print("Setup complete. Starting model training:\n")
+        train_model(model, criterion, optimizer, dataloaders,
+                    device, NUM_EPOCHS, MODEL_PATH)
     else:
         print("Error occurred during setup")
         exit(1)

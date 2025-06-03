@@ -2,11 +2,14 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from torchvision import datasets, models, transforms
-from torch.utils.data import DataLoader, random_split
+from torch.utils.data import DataLoader
+from torch.optim.lr_scheduler import ReduceLROnPlateau
 import os
 import numpy as np
 import warnings
 
+
+# Suppress specific warning
 warnings.filterwarnings("ignore", category=UserWarning, module="PIL.Image",
                         message="Palette images with Transparency expressed in bytes should be converted to RGBA images")
 
@@ -16,7 +19,7 @@ DATA_PATH = 'data/'
 MODEL_PATH = 'sneaker_classifier.pth'
 NUM_CLASSES = 50
 BATCH_SIZE = 32
-NUM_EPOCHS = 10
+NUM_EPOCHS = 20
 LEARNING_RATE = 1e-4
 WEIGHT_DECAY = 1e-4
 
@@ -25,7 +28,7 @@ WEIGHT_DECAY = 1e-4
 def data_setup(data_path, batch_size):
     # Data Augmentation/Transformation
     # Training set will include data augmentation and normalization
-    # Test set will only include normalization
+    # Validation set will only include normalization
     data_transforms = {
         'train': transforms.Compose([
             # Augmentation
@@ -39,7 +42,7 @@ def data_setup(data_path, batch_size):
             transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[
                 0.229, 0.224, 0.225])
         ]),
-        'test': transforms.Compose([
+        'val': transforms.Compose([
             transforms.Resize(256),
             transforms.CenterCrop(224),
             transforms.ToTensor(),
@@ -60,8 +63,8 @@ def data_setup(data_path, batch_size):
         # Creating datasets
         train_dataset_full = datasets.ImageFolder(
             DATA_PATH, data_transforms['train'])
-        test_dataset_full = datasets.ImageFolder(
-            DATA_PATH, data_transforms['test'])
+        val_dataset_full = datasets.ImageFolder(
+            DATA_PATH, data_transforms['val'])
 
         # Get class names
         class_names = train_dataset_full.classes
@@ -71,29 +74,29 @@ def data_setup(data_path, batch_size):
 
         # Calculating split sizes
         dataset_size = len(train_dataset_full)
-        test_size = int(0.2 * dataset_size)  # 20% data for testing
-        train_size = dataset_size - test_size
+        val_size = int(0.2 * dataset_size)  # 20% data for validation
+        train_size = dataset_size - val_size
         print(
-            f"Total images: {dataset_size}, Training images: {train_size}, Validation images: {test_size}")
+            f"Total images: {dataset_size}, Training images: {train_size}, Validation images: {val_size}")
 
-        # Splitting into actual train and test datasets
+        # Splitting into actual train and validation datasets
         indices = list(range(dataset_size))
         np.random.shuffle(indices)
-        train_indices, test_indices = indices[:train_size], indices[train_size:]
+        train_indices, val_indices = indices[:train_size], indices[train_size:]
         train_dataset = torch.utils.data.Subset(
             train_dataset_full, train_indices)
-        test_dataset = torch.utils.data.Subset(test_dataset_full, test_indices)
+        val_dataset = torch.utils.data.Subset(val_dataset_full, val_indices)
 
         # Data Loaders
         dataloaders = {
             'train': DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=4),
-            'test': DataLoader(test_dataset, batch_size=BATCH_SIZE, shuffle=False, num_workers=4)
+            'val': DataLoader(val_dataset, batch_size=BATCH_SIZE, shuffle=False, num_workers=4)
         }
         dataset_sizes = {'train': len(
-            train_dataset), 'test': len(test_dataset)}
+            train_dataset), 'val': len(val_dataset)}
         print("Dataset loaded and split successfully.")
         print(f"Training set size: {dataset_sizes['train']}")
-        print(f"Test set size: {dataset_sizes['test']}\n")
+        print(f"Validation set size: {dataset_sizes['val']}\n")
 
         return dataloaders
 
@@ -108,7 +111,7 @@ def data_setup(data_path, batch_size):
 
 # ResNet18 Model Setup
 def model_setup(NUM_CLASSES, LEARNING_RATE):
-    model = models.resnet18(pretrained=True)
+    model = models.resnet18(weights=models.ResNet18_Weights.IMAGENET1K_V1)
 
     # Freeze pretrained layers
     # for param in model.parameters():
@@ -128,21 +131,27 @@ def model_setup(NUM_CLASSES, LEARNING_RATE):
     optimizer = optim.Adam(
         model.parameters(), lr=LEARNING_RATE, weight_decay=WEIGHT_DECAY)
     criterion = nn.CrossEntropyLoss()
-    return model, criterion, optimizer, device
+
+    # Scheduler for learning rate adjustment
+    scheduler = ReduceLROnPlateau(
+        optimizer, mode='min', factor=0.1, patience=3)
+
+    return model, criterion, optimizer, device, scheduler
 
 
 # Training function
-def train_model(model, criterion, optimizer, dataloaders, device, num_epochs, model_path):
+def train_model(model, criterion, optimizer, scheduler, dataloaders, device, num_epochs, model_path):
     print("Starting training...")
     best_weights = model.state_dict()
     best_acc = 0.0
+    val_epoch_loss = 0.0
 
     # Epoch loop
     for epoch in range(num_epochs):
         print(f'\nEpoch: {epoch + 1}/{num_epochs}')
 
-        # Set train/test mode
-        for mode in ['train', 'test']:
+        # Set train/validation mode
+        for mode in ['train', 'val']:
             if mode == 'train':
                 model.train()
             else:
@@ -189,16 +198,24 @@ def train_model(model, criterion, optimizer, dataloaders, device, num_epochs, mo
                 epoch_acc = running_corrects.double() / samples
                 print(
                     f'{mode.capitalize()} Loss: {epoch_loss:.4f} Accuracy: {epoch_acc:.4f}')
+                if mode == 'val':
+                    val_epoch_loss = epoch_loss
             else:
                 print(f'{mode.capitalize()} No samples processed in epoch')
                 epoch_loss = float('nan')
                 epoch_acc = float('nan')
+                if mode == 'val':
+                    val_epoch_loss = float('nan')
 
             # Copy best model
-            if mode == 'test' and epoch_acc > best_acc:
+            if mode == 'val' and epoch_acc > best_acc:
                 best_acc = epoch_acc
                 best_weights = model.state_dict().copy()
-                print(f'New best test accuracy: {best_acc:.4f}')
+                print(f'New best validation accuracy: {best_acc:.4f}')
+
+        # Step scheduler
+        if scheduler:
+            scheduler.step(val_epoch_loss)
 
     # Save best model & weights
     model.load_state_dict(best_weights)
@@ -211,11 +228,11 @@ def train_model(model, criterion, optimizer, dataloaders, device, num_epochs, mo
 if __name__ == "__main__":
     # Data setup
     dataloaders = data_setup(DATA_PATH, BATCH_SIZE)
-    model, criterion, optimizer, device = model_setup(
+    model, criterion, optimizer, device, scheduler = model_setup(
         NUM_CLASSES, LEARNING_RATE)
     if 'dataloaders' in locals() and 'model' in locals() and 'optimizer' in locals() and 'criterion' in locals():
         print("Setup complete. Starting model training:\n")
-        train_model(model, criterion, optimizer, dataloaders,
+        train_model(model, criterion, optimizer, scheduler, dataloaders,
                     device, NUM_EPOCHS, MODEL_PATH)
     else:
         print("Error occurred during setup")

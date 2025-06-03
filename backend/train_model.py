@@ -104,3 +104,73 @@ print(f"Using device: {device}")
 model = model.to(device)
 print("ResNet18 model initialized and setup.")
 print(f"Model's final layer: {model.fc}")
+
+# Optimizer and Loss Function set up
+optimizer = optim.Adam(model.fc.parameters(), lr=LEARNING_RATE)
+criterion = nn.CrossEntropyLoss()
+
+
+# Training function
+def train_model(model, criterion, optimizer, dataloaders, device, num_epochs, model_path):
+    print("Starting training...")
+    start = time.time()
+    best_weights = model.state_dict()
+    best_acc = 0.0
+
+    # Epoch loop
+    for epoch in range(num_epochs):
+        print(f'\nEpoch {epoch + 1}/{num_epochs}')
+
+        # Set train/test mode
+        for mode in ['train', 'test']:
+            if mode == 'train':
+                model.train()
+            else:
+                model.eval()
+
+            # Iteration
+            running_loss = 0.0
+            running_corrects = 0
+            samples = 0
+
+            for features, labels in dataloaders[mode]:
+                features = features.to(device)
+                labels = labels.to(device)
+
+                # Gradient reset
+                optimizer.zero_grad()
+
+                with torch.set_grad_enabled(mode == 'train'):
+                    outputs = model(features)
+                    _, preds = torch.max(outputs, 1)
+                    loss = criterion(outputs, labels)
+
+                    # Compute gradients and update weights
+                    if mode == 'train':
+                        loss.backward()
+                        optimizer.step()
+
+                # Update stats
+                running_loss += loss.item() * features.size(0)
+                running_corrects += torch.sum(preds == labels.data)
+                samples += features.size(0)
+
+            # Handle zero division
+            if samples > 0:
+                epoch_loss = running_loss / samples
+                epoch_acc = running_corrects.double() / samples
+                print(
+                    f'{mode.capitalize()} Loss: {epoch_loss:.4f} Accuracy: {epoch_acc:.4f}')
+            else:
+                print(f'{mode.capitalize()} No samples processed in epoch')
+                epoch_loss = float('nan')
+                epoch_acc = float('nan')
+
+
+# Main
+if __name__ == "__main__":
+    if 'dataloaders' in locals() and 'model' in locals() and 'optimizer' in locals() and 'criterion' in locals():
+        print("Setup complete. Training model...")
+    else:
+        print("Error occurred during setup")
+        exit(1)

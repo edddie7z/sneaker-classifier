@@ -4,4 +4,3 @@ torch
 torchvision
 Pillow
 numpy
-matplotlib

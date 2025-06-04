@@ -15,7 +15,7 @@ document.addEventListener("DOMContentLoaded", () => {
         imagePreview.style.display = "block";
       };
       reader.readAsDataURL(selectedFile);
-      predictionResult.innerHTML = "<p>Prediction will appear here...</p>"; // Reset result
+      predictionResult.innerHTML = "<p>Prediction will appear here</p>"; // Reset result
     } else {
       imagePreview.style.display = "none";
       imagePreview.src = "#";
@@ -62,9 +62,12 @@ document.addEventListener("DOMContentLoaded", () => {
       const data = await response.json();
 
       if (data.prediction && data.confidence) {
+        const confidenceValue = parseFloat(data.confidence) * 100;
         predictionResult.innerHTML = `
                     <p><strong>Prediction:</strong> ${data.prediction}</p>
-                    <p><strong>Confidence:</strong> ${data.confidence}</p>
+                    <p><strong>Confidence:</strong> ${confidenceValue.toFixed(
+                      2
+                    )}%</p>
                 `;
       } else if (data.error) {
         predictionResult.innerHTML = `<p class="error">Error: ${data.error}</p>`;

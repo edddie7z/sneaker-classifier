@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sneaker Classifier</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <h1>Sneaker Classifier</h1>
+
+      <input type="file" id="imageUpload" accept="image/*" />
+
+      <div class="image-preview-container">
+        <img
+          id="imagePreview"
+          src="#"
+          alt="Image Preview"
+          style="display: none"
+        />
+      </div>
+
+      <button id="predictButton">Predict Sneaker</button>
+
+      <div id="predictionResult">
+        <p>Prediction will appear here...</p>
+      </div>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>

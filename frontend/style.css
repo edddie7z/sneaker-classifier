@@ -1,0 +1,76 @@
+body {
+  font-family: sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  margin: 0;
+  background-color: #f4f4f4;
+  color: #333;
+}
+
+.container {
+  background-color: white;
+  padding: 30px;
+  border-radius: 8px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+h1 {
+  margin-bottom: 20px;
+  color: #555;
+}
+
+input[type="file"] {
+  margin-bottom: 20px;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.image-preview-container {
+  width: 250px; /* Or your preferred size */
+  height: 250px; /* Or your preferred size */
+  border: 1px solid #ddd;
+  margin: 0 auto 20px auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden; /* To contain the image if it's larger */
+}
+
+#imagePreview {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: cover; /* Changed to cover for better fill */
+}
+
+button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  font-size: 16px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+#predictionResult {
+  margin-top: 20px;
+  font-size: 1.1em;
+}
+
+#predictionResult p {
+  margin: 5px 0;
+}
+
+#predictionResult .error {
+  color: red;
+  font-weight: bold;
+}

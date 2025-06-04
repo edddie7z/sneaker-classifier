@@ -1,0 +1,80 @@
+document.addEventListener("DOMContentLoaded", () => {
+  const imageUpload = document.getElementById("imageUpload");
+  const imagePreview = document.getElementById("imagePreview");
+  const predictButton = document.getElementById("predictButton");
+  const predictionResult = document.getElementById("predictionResult");
+
+  let selectedFile = null;
+
+  imageUpload.addEventListener("change", (event) => {
+    selectedFile = event.target.files[0];
+    if (selectedFile) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        imagePreview.src = e.target.result;
+        imagePreview.style.display = "block";
+      };
+      reader.readAsDataURL(selectedFile);
+      predictionResult.innerHTML = "<p>Prediction will appear here...</p>"; // Reset result
+    } else {
+      imagePreview.style.display = "none";
+      imagePreview.src = "#";
+      selectedFile = null;
+    }
+  });
+
+  predictButton.addEventListener("click", async () => {
+    if (!selectedFile) {
+      predictionResult.innerHTML =
+        '<p class="error">Please select an image first!</p>';
+      return;
+    }
+
+    predictionResult.innerHTML = "<p>Predicting...</p>";
+
+    const formData = new FormData();
+    formData.append("image", selectedFile); // 'image' must match the key expected by Flask
+
+    try {
+      // Make sure your Flask app (app.py) is running!
+      const response = await fetch("http://localhost:5000/predict", {
+        method: "POST",
+        body: formData,
+        // Note: When using FormData with fetch, 'Content-Type' header
+        // is set automatically by the browser to 'multipart/form-data'.
+        // Do not set it manually for FormData.
+      });
+
+      if (!response.ok) {
+        // Try to get error message from API if available
+        let errorMsg = `API Error: ${response.status} ${response.statusText}`;
+        try {
+          const errorData = await response.json();
+          if (errorData && errorData.error) {
+            errorMsg = `API Error: ${errorData.error}`;
+          }
+        } catch (e) {
+          // Could not parse JSON, use the status text
+        }
+        throw new Error(errorMsg);
+      }
+
+      const data = await response.json();
+
+      if (data.prediction && data.confidence) {
+        predictionResult.innerHTML = `
+                    <p><strong>Prediction:</strong> ${data.prediction}</p>
+                    <p><strong>Confidence:</strong> ${data.confidence}</p>
+                `;
+      } else if (data.error) {
+        predictionResult.innerHTML = `<p class="error">Error: ${data.error}</p>`;
+      } else {
+        predictionResult.innerHTML =
+          '<p class="error">Unexpected response from API.</p>';
+      }
+    } catch (error) {
+      console.error("Error during prediction:", error);
+      predictionResult.innerHTML = `<p class="error">Error: ${error.message}</p>`;
+    }
+  });
+});

@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 import torch
 import torch.nn as nn
 import torchvision.models as models
@@ -40,6 +41,7 @@ image_transforms = transforms.Compose([
 
 # Initialize Flask
 app = Flask(__name__)
+CORS(app)
 
 
 @app.route('/predict', methods=['POST'])
@@ -51,7 +53,7 @@ def predict():
 
     try:
         # Process image
-        image = Image.open(io.BytesIO(image_file.read()).convert('RGB'))
+        image = Image.open(io.BytesIO(image_file.read())).convert('RGB')
         image_tensor = image_transforms(
             image).unsqueeze(0)
         image_tensor = image_tensor.to(DEVICE)
@@ -65,6 +67,13 @@ def predict():
 
         predicted_class = class_names[predicted_idx.item()]
         confidence = confidence.item()
+
+        # Format predicted class
+        if isinstance(predicted_class, str):
+            predicted_class = ' '.join(
+                [word.capitalize() for word in predicted_class.split('_')])
+        else:
+            predicted_class = str(predicted_class)
 
         return jsonify({
             'prediction': predicted_class,

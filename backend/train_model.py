@@ -4,6 +4,7 @@ import torch.optim as optim
 from torchvision import datasets, models, transforms
 from torch.utils.data import DataLoader
 from torch.optim.lr_scheduler import ReduceLROnPlateau
+import matplotlib.pyplot as plt
 import os
 import numpy as np
 import warnings
@@ -34,7 +35,7 @@ def data_setup(data_path, batch_size):
             # Augmentation
             transforms.RandomResizedCrop(224),
             transforms.RandomHorizontalFlip(),
-            transforms.RandomRotation(10),
+            transforms.RandomRotation(15),
             transforms.ColorJitter(
                 brightness=0.1, contrast=0.1, saturation=0.1, hue=0.05),
             transforms.ToTensor(),
@@ -134,7 +135,7 @@ def model_setup(NUM_CLASSES, LEARNING_RATE):
 
     # Scheduler for learning rate adjustment
     scheduler = ReduceLROnPlateau(
-        optimizer, mode='min', factor=0.1, patience=3)
+        optimizer, mode='min', factor=0.2, patience=2)
 
     return model, criterion, optimizer, device, scheduler
 
@@ -172,7 +173,7 @@ def train_model(model, criterion, optimizer, scheduler, dataloaders, device, num
 
                 with torch.set_grad_enabled(mode == 'train'):
                     outputs = model(features)
-                    _, preds = torch.max(outputs, 1)
+                    _, pred = torch.max(outputs, 1)
                     loss = criterion(outputs, labels)
 
                     # Compute gradients and update weights
@@ -182,7 +183,7 @@ def train_model(model, criterion, optimizer, scheduler, dataloaders, device, num
 
                 # Update stats
                 running_loss += loss.item() * features.size(0)
-                running_corrects += torch.sum(preds == labels.data)
+                running_corrects += torch.sum(pred == labels.data)
                 samples += features.size(0)
 
                 # Progress update

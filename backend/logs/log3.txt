@@ -1,0 +1,148 @@
+Looking for data in /home/edwardz/private/self/sneaker/data
+Loading and splitting datasets
+Total images: 5953, Training images: 4763, Validation images: 1190
+Dataset loaded and split successfully.
+Training set size: 4763
+Validation set size: 1190
+
+Using device: cpu
+ResNet18 model initialized and setup.
+Model's final layer: Linear(in_features=512, out_features=50, bias=True)
+Setup complete. Starting model training:
+
+Starting training...
+
+Epoch: 1/20
+Train  Batch 149/149 (100.00%) completed.
+Train Loss: 3.4561 Accuracy: 0.1610
+Val    Batch 38/38 (100.00%) completed.
+Val Loss: 2.4254 Accuracy: 0.3815
+New best validation accuracy: 0.3815
+
+Epoch: 2/20
+Train  Batch 149/149 (100.00%) completed.
+Train Loss: 2.3590 Accuracy: 0.4331
+Val    Batch 38/38 (100.00%) completed.
+Val Loss: 1.5226 Accuracy: 0.6235
+New best validation accuracy: 0.6235
+
+Epoch: 3/20
+Train  Batch 149/149 (100.00%) completed.
+Train Loss: 1.8529 Accuracy: 0.5482
+Val    Batch 38/38 (100.00%) completed.
+Val Loss: 1.2217 Accuracy: 0.6748
+New best validation accuracy: 0.6748
+
+Epoch: 4/20
+Train  Batch 149/149 (100.00%) completed.
+Train Loss: 1.5338 Accuracy: 0.6227
+Val    Batch 38/38 (100.00%) completed.
+Val Loss: 1.0613 Accuracy: 0.7235
+New best validation accuracy: 0.7235
+
+Epoch: 5/20
+Train  Batch 149/149 (100.00%) completed.
+Train Loss: 1.3552 Accuracy: 0.6599
+Val    Batch 38/38 (100.00%) completed.
+Val Loss: 0.8835 Accuracy: 0.7647
+New best validation accuracy: 0.7647
+
+Epoch: 6/20
+Train  Batch 149/149 (100.00%) completed.
+Train Loss: 1.2269 Accuracy: 0.6949
+Val    Batch 38/38 (100.00%) completed.
+Val Loss: 0.8734 Accuracy: 0.7555
+
+Epoch: 7/20
+Train  Batch 149/149 (100.00%) completed.
+Train Loss: 1.1347 Accuracy: 0.7166
+Val    Batch 38/38 (100.00%) completed.
+Val Loss: 0.7960 Accuracy: 0.7824
+New best validation accuracy: 0.7824
+
+Epoch: 8/20
+Train  Batch 149/149 (100.00%) completed.
+Train Loss: 1.0494 Accuracy: 0.7308
+Val    Batch 38/38 (100.00%) completed.
+Val Loss: 0.7315 Accuracy: 0.8008
+New best validation accuracy: 0.8008
+
+Epoch: 9/20
+Train  Batch 149/149 (100.00%) completed.
+Train Loss: 0.9854 Accuracy: 0.7462
+Val    Batch 38/38 (100.00%) completed.
+Val Loss: 0.7499 Accuracy: 0.7933
+
+Epoch: 10/20
+Train  Batch 149/149 (100.00%) completed.
+Train Loss: 0.8960 Accuracy: 0.7741
+Val    Batch 38/38 (100.00%) completed.
+Val Loss: 0.7003 Accuracy: 0.8034
+New best validation accuracy: 0.8034
+
+Epoch: 11/20
+Train  Batch 149/149 (100.00%) completed.
+Train Loss: 0.8858 Accuracy: 0.7739
+Val    Batch 38/38 (100.00%) completed.
+Val Loss: 0.6556 Accuracy: 0.8126
+New best validation accuracy: 0.8126
+
+Epoch: 12/20
+Train  Batch 149/149 (100.00%) completed.
+Train Loss: 0.8103 Accuracy: 0.7938
+Val    Batch 38/38 (100.00%) completed.
+Val Loss: 0.6758 Accuracy: 0.8160
+New best validation accuracy: 0.8160
+
+Epoch: 13/20
+Train  Batch 149/149 (100.00%) completed.
+Train Loss: 0.8079 Accuracy: 0.7953
+Val    Batch 38/38 (100.00%) completed.
+Val Loss: 0.6942 Accuracy: 0.8101
+
+Epoch: 14/20
+Train  Batch 149/149 (100.00%) completed.
+Train Loss: 0.7477 Accuracy: 0.8089
+Val    Batch 38/38 (100.00%) completed.
+Val Loss: 0.6838 Accuracy: 0.8176
+New best validation accuracy: 0.8176
+
+Epoch: 15/20
+Train  Batch 149/149 (100.00%) completed.
+Train Loss: 0.7578 Accuracy: 0.8026
+Val    Batch 38/38 (100.00%) completed.
+Val Loss: 0.6498 Accuracy: 0.8218
+New best validation accuracy: 0.8218
+
+Epoch: 16/20
+Train  Batch 149/149 (100.00%) completed.
+Train Loss: 0.7024 Accuracy: 0.8194
+Val    Batch 38/38 (100.00%) completed.
+Val Loss: 0.6289 Accuracy: 0.8303
+New best validation accuracy: 0.8303
+
+Epoch: 17/20
+Train  Batch 149/149 (100.00%) completed.
+Train Loss: 0.6841 Accuracy: 0.8169
+Val    Batch 38/38 (100.00%) completed.
+Val Loss: 0.6560 Accuracy: 0.8176
+
+Epoch: 18/20
+Train  Batch 149/149 (100.00%) completed.
+Train Loss: 0.6763 Accuracy: 0.8207
+Val    Batch 38/38 (100.00%) completed.
+Val Loss: 0.6608 Accuracy: 0.8126
+
+Epoch: 19/20
+Train  Batch 149/149 (100.00%) completed.
+Train Loss: 0.6617 Accuracy: 0.8285
+Val    Batch 38/38 (100.00%) completed.
+Val Loss: 0.6747 Accuracy: 0.8084
+
+Epoch: 20/20
+Train  Batch 149/149 (100.00%) completed.
+Train Loss: 0.6160 Accuracy: 0.8411
+Val    Batch 38/38 (100.00%) completed.
+Val Loss: 0.6366 Accuracy: 0.8319
+New best validation accuracy: 0.8319
+Best model saved to sneaker_classifier.pth

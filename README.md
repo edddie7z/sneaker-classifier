@@ -7,8 +7,8 @@ This project is a Sneaker Classifier capable of identifying 50 different classes
 ## Features
 
 - Classifies 50 different types of sneakers.
+- Backend built with Python, PyTorch for the CNN model, and Flask for the API.
 - Web interface for uploading images and viewing classification results.
-- Backend built with Python, potentially using Flask for the API.
 - Frontend built with HTML, CSS, and JavaScript.
 
 ## Dataset

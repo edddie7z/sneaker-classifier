@@ -15,7 +15,7 @@ document.addEventListener("DOMContentLoaded", () => {
         imagePreview.style.display = "block";
       };
       reader.readAsDataURL(selectedFile);
-      predictionResult.innerHTML = "<p>Prediction will appear here</p>"; // Reset result
+      predictionResult.innerHTML = "<p>Prediction will appear here</p>";
     } else {
       imagePreview.style.display = "none";
       imagePreview.src = "#";
@@ -33,29 +33,22 @@ document.addEventListener("DOMContentLoaded", () => {
     predictionResult.innerHTML = "<p>Predicting...</p>";
 
     const formData = new FormData();
-    formData.append("image", selectedFile); // 'image' must match the key expected by Flask
+    formData.append("image", selectedFile);
 
     try {
-      // Make sure your Flask app (app.py) is running!
       const response = await fetch("http://localhost:5000/predict", {
         method: "POST",
         body: formData,
-        // Note: When using FormData with fetch, 'Content-Type' header
-        // is set automatically by the browser to 'multipart/form-data'.
-        // Do not set it manually for FormData.
       });
 
       if (!response.ok) {
-        // Try to get error message from API if available
         let errorMsg = `API Error: ${response.status} ${response.statusText}`;
         try {
           const errorData = await response.json();
           if (errorData && errorData.error) {
             errorMsg = `API Error: ${errorData.error}`;
           }
-        } catch (e) {
-          // Could not parse JSON, use the status text
-        }
+        } catch (e) {}
         throw new Error(errorMsg);
       }
 

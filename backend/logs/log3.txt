@@ -1,4 +1,3 @@
-Looking for data in /home/edwardz/private/self/sneaker/data
 Loading and splitting datasets
 Total images: 5953, Training images: 4763, Validation images: 1190
 Dataset loaded and split successfully.
